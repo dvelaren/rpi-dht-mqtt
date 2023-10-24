@@ -44,5 +44,5 @@ This project implements a simple temperature and humidity sensor using a Raspber
 
 - Compose the project
     ```bash
-    docker-compose up -p rpi_dht --build -d
+    docker compose up -p rpi_dht --build -d
     ```
