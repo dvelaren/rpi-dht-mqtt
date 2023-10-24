@@ -1,0 +1,23 @@
+version: "3.9"
+
+services:
+  rpidht:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    devices:
+      - /dev/gpiomem
+      - /dev/gpiochip0
+      - /dev/gpiochip1
+    container_name: rpi_dht
+    environment:
+      - READ_TIME=${READ_TIME:-5}
+      - DHT_PIN=${DHT_PIN:-17}
+      - MQTT_BROKER=${MQTT_BROKER:-localhost}
+      - MQTT_PORT=${MQTT_PORT:-1883}
+      - MQTT_TOPIC=${MQTT_TOPIC:-/devices/rpi-casa}
+      - MQTT_CLIENT_ID=${MQTT_CLIENT_ID:-rpi-user1}
+      - MQTT_USERNAME=${MQTT_USERNAME}
+      - MQTT_PASSWORD=${MQTT_PASSWORD}
+    network_mode: host 
+    restart: unless-stopped
