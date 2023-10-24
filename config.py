@@ -1,6 +1,5 @@
 import os
 import logging
-from logging import StreamHandler
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -14,17 +13,11 @@ class Config:
     MQTT_CLIENT_ID = os.environ.get("MQTT_CLIENT_ID") or "rpi-dvelas25"
     MQTT_USERNAME = os.environ.get("MQTT_USERNAME")
     MQTT_PASSWORD = os.environ.get("MQTT_PASSWORD")
-    logging.basicConfig(
-        format="|%(asctime)s| [%(levelname)s] {%(module)s->%(funcName)s}: %(message)s",
-        datefmt="%Y-%m-%d %H:%M:%S %Z",
-        level=logging.INFO,
-        handlers=[StreamHandler()],
-    )
+    LOGGING_LEVEL = logging.INFO
 
 class DevelopmentConfig(Config):
     """Development configuration."""
-    logger = logging.getLogger(__name__)
-    logger.setLevel(logging.DEBUG)
+    LOGGING_LEVEL = logging.DEBUG
 
 class ProductionConfig(Config):
     """Production configuration."""
