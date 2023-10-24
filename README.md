@@ -31,14 +31,14 @@ This project implements a simple temperature and humidity sensor using a Raspber
 - Create a `.env` file in the root of the project and add the following variables
     ```bash
     ENVIRONMENT=development
-    READ_TIME = 5
-    DHT_PIN = 17
-    MQTT_BROKER = "localhost"
-    MQTT_PORT = 1883
-    MQTT_TOPIC = "/devices/CHANGE_DEVICE"
-    MQTT_CLIENT_ID = "rpi-user1"
-    MQTT_USERNAME = "CHANGE_USER"
-    MQTT_PASSWORD = "CHANGE_PASS"
+    READ_TIME=5
+    DHT_PIN=17
+    MQTT_BROKER="localhost"
+    MQTT_PORT=1883
+    MQTT_TOPIC="/devices/CHANGE_DEVICE"
+    MQTT_CLIENT_ID="rpi-user1"
+    MQTT_USERNAME="CHANGE_USER"
+    MQTT_PASSWORD="CHANGE_PASS"
     ```
     The `READ_TIME` parameter is in seconds and the `DHT_PIN` is the GPIO pin number where the sensor is connected.
 
