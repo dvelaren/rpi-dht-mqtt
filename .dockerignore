@@ -1,1 +1,23 @@
+# Ignore bytecode files
 __pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Ignore virtual environment files
+venv/
+env/
+
+# Ignore test files
+test/
+*.test.py
+
+# Ignore git files
+.git/
+.gitignore
+
+# Ignore other files that are not needed for the application
+README.md
+LICENSE
+Dockerfile
+.dockerignore
