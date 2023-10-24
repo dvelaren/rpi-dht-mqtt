@@ -1,11 +1,7 @@
 import logging
 from paho.mqtt import client as mqtt_client
 import time
-
-FIRST_RECONNECT_DELAY = 1
-RECONNECT_RATE = 2
-MAX_RECONNECT_COUNT = 12
-MAX_RECONNECT_DELAY = 60
+from utils.constants import FIRST_RECONNECT_DELAY, RECONNECT_RATE, MAX_RECONNECT_COUNT, MAX_RECONNECT_DELAY
 
 def connect_mqtt(client_id, broker, port, username, password):
     def on_connect(client, userdata, flags, rc):

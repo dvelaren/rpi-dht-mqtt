@@ -6,20 +6,20 @@ from dotenv import load_dotenv
 import board
 import adafruit_dht
 from config import config
-from utils import connect_mqtt, publish, on_disconnect
+from utils.utils import connect_mqtt, publish, on_disconnect
+from utils.constants import boardspins
 
 load_dotenv()
 app = config[os.getenv("ENVIRONMENT") or "default"]
 logger = logging.getLogger("config")
-client = connect_mqtt(app.MQTT_CLIENT_ID, app.MQTT_BROKER, int(app.MQTT_PORT), app.MQTT_USERNAME, app.MQTT_PASSWORD)
-sensor = adafruit_dht.DHT11(board.D17)
-
-time.sleep(2)
 
 def main():
     logger.info(f"rpi-dht service started, refresh time {app.READ_TIME} secs")
+    client = connect_mqtt(app.MQTT_CLIENT_ID, app.MQTT_BROKER, int(app.MQTT_PORT), app.MQTT_USERNAME, app.MQTT_PASSWORD)
     client.loop_start()
     client.on_disconnect = on_disconnect
+    pin = boardspins[f"D{app.DHT_PIN}"]
+    sensor = adafruit_dht.DHT11(pin)
     while True:
         try:
             temperature = sensor.temperature

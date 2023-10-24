@@ -17,6 +17,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 RUN apt remove --purge -y gcc libc6-dev
 RUN apt autoremove -y
 
-COPY main.py config.py utils.py .
+COPY main.py config.py .
+COPY utils utils
 
 ENTRYPOINT [ "python", "-u", "./main.py" ]
