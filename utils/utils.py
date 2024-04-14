@@ -6,13 +6,13 @@ from utils.constants import FIRST_RECONNECT_DELAY, RECONNECT_RATE, MAX_RECONNECT
 logger = logging.getLogger(__name__)
 
 def connect_mqtt(client_id, broker, port, username, password):
-    def on_connect(client, userdata, flags, rc):
+    def on_connect(client, userdata, flags, rc, properties):
         if rc == 0:
             logger.info("Connected to MQTT Broker!")
         else:
             logger.error("Failed to connect, return code %d\n", rc)
 
-    client = mqtt_client.Client(client_id)
+    client = mqtt_client.Client(mqtt_client.CallbackAPIVersion.VERSION2, client_id)
     client.username_pw_set(username, password)
     client.on_connect = on_connect
     client.connect(broker, port)
