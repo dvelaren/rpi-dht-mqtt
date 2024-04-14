@@ -1,4 +1,4 @@
-FROM python:3.10-alpine
+FROM python:3.7-alpine
 
 ENV ENVIRONMENT docker
 
@@ -9,9 +9,9 @@ COPY requirements.txt .
 RUN pip install -U pip
 RUN apk update && apk upgrade
 RUN apk add --no-cache gcc libc-dev libgpiod
-RUN pip install --no-cache-dir rpi.gpio
+RUN pip install --no-cache-dir RPi.GPIO
+RUN pip install --no-cache-dir adafruit-blinka
 RUN pip install --no-cache-dir adafruit-circuitpython-dht
-# RUN pip install --no-cache-dir Adafruit-Blinka
 RUN pip install --no-cache-dir -r requirements.txt
 
 RUN apk del --no-network --purge gcc libc-dev

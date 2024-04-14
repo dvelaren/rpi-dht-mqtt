@@ -4,7 +4,6 @@ import logging
 from logging import StreamHandler
 import json
 from dotenv import load_dotenv
-import board
 import adafruit_dht
 from config import config
 from utils.utils import connect_mqtt, publish, on_disconnect
