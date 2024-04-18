@@ -3,8 +3,8 @@
 This project implements a simple temperature and humidity sensor using a Raspberry Pi and a DHT11 sensor. It uses [Adafruit DHT Library](https://github.com/adafruit/Adafruit_CircuitPython_DHT) to read the sensor data through One Wire protocol. It also sends the Temperature and Humidity to a MQTT Broker.
 
 ## Requirements
-- Raspberry Pi 3 or 4
-- DHT11 Sensor
+- Raspberry Pi 3, 4 or 5
+- DHT11 or DHT22 Sensor
 - i2c-tools, libgpiod2, libgpiod-dev and python3-libgpiod packages
 - Docker and Docker Compose
 - MQTT Broker
