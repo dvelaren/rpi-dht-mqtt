@@ -7,6 +7,7 @@ load_dotenv()
 class Config:
     READ_TIME = os.environ.get("READ_TIME") or 5
     DHT_PIN = os.environ.get("DHT_PIN") or 17
+    DHT_TYPE = os.environ.get("DHT_TYPE") or "DHT11"
     MQTT_BROKER = os.environ.get("MQTT_BROKER") or "localhost"
     MQTT_PORT = os.environ.get("MQTT_PORT") or 1883
     MQTT_TOPIC = os.environ.get("MQTT_TOPIC") or "/devices/rpi-casa"

@@ -33,6 +33,7 @@ This project implements a simple temperature and humidity sensor using a Raspber
     ENVIRONMENT=development
     READ_TIME=5
     DHT_PIN=17
+    DHT_TYPE=DHT11
     MQTT_BROKER="localhost"
     MQTT_PORT=1883
     MQTT_TOPIC="/devices/CHANGE_DEVICE"
@@ -44,5 +45,5 @@ This project implements a simple temperature and humidity sensor using a Raspber
 
 - Compose the project
     ```bash
-    docker compose up -p rpi_dht --build -d
+    docker compose up -p rpi-dht-mqtt --build -d
     ```

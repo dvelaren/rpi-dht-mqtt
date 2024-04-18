@@ -12,6 +12,7 @@ services:
     environment:
       - READ_TIME=${READ_TIME:-5}
       - DHT_PIN=${DHT_PIN:-17}
+      - DHT_TYPE=${DHT_TYPE:-DHT11}
       - MQTT_BROKER=${MQTT_BROKER:-localhost}
       - MQTT_PORT=${MQTT_PORT:-1883}
       - MQTT_TOPIC=${MQTT_TOPIC:-/devices/rpi-casa}

@@ -25,7 +25,7 @@ def main():
     client.loop_start()
     client.on_disconnect = on_disconnect
     pin = boardspins[f"D{app.DHT_PIN}"]
-    sensor = adafruit_dht.DHT11(pin)
+    sensor = adafruit_dht.DHT22(pin) if app.DHT_TYPE == "DHT22" else adafruit_dht.DHT11(pin)
     while True:
         try:
             temperature = sensor.temperature
