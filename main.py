@@ -19,24 +19,37 @@ logging.basicConfig(
     handlers=[StreamHandler()],
 )
 
+
 def main():
-    logging.info(f"rpi-dht service started, refresh time {app.READ_TIME} secs")
-    client = connect_mqtt(app.MQTT_CLIENT_ID, app.MQTT_BROKER, int(app.MQTT_PORT), app.MQTT_USERNAME, app.MQTT_PASSWORD)
+    logging.info("rpi-dht service started, refresh time %s secs", app.READ_TIME)
+    client = connect_mqtt(
+        app.MQTT_CLIENT_ID,
+        app.MQTT_BROKER,
+        int(app.MQTT_PORT),
+        app.MQTT_USERNAME,
+        app.MQTT_PASSWORD,
+    )
     client.loop_start()
     client.on_disconnect = on_disconnect
     pin = boardspins[f"D{app.DHT_PIN}"]
-    sensor = adafruit_dht.DHT22(pin) if app.DHT_TYPE == "DHT22" else adafruit_dht.DHT11(pin)
+    sensor = (
+        adafruit_dht.DHT22(pin) if app.DHT_TYPE == "DHT22" else adafruit_dht.DHT11(pin)
+    )
     while True:
         try:
             temperature = sensor.temperature
             humidity = sensor.humidity
             if humidity is not None and temperature is not None:
-                logging.debug(f"Temp: {temperature:.2f} °C, Hum: {humidity:.2f} %")
-                publish(client, app.MQTT_TOPIC, json.dumps({"temperature": temperature, "humidity": humidity}))
+                logging.debug("Temp: %.2f °C, Hum: %.2f %%", temperature, humidity)
+                publish(
+                    client,
+                    app.MQTT_TOPIC,
+                    json.dumps({"temperature": temperature, "humidity": humidity}),
+                )
             else:
                 logging.error("Failed reading DHT sensor")
         except RuntimeError as e:
-            logging.error(f"Reading from DHT failure: {e.args[0]}")
+            logging.error("Reading from DHT failure: %s", e.args[0])
             time.sleep(int(app.READ_TIME))
             continue
         except Exception as e:
@@ -44,6 +57,7 @@ def main():
             raise e
         time.sleep(int(app.READ_TIME))
     client.loop_stop()
+
 
 if __name__ == "__main__":
     main()

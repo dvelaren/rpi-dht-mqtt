@@ -4,10 +4,11 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+
 class Config:
     READ_TIME = os.environ.get("READ_TIME") or 5
     DHT_PIN = os.environ.get("DHT_PIN") or 17
-    DHT_TYPE = os.environ.get("DHT_TYPE") or "DHT11"
+    DHT_TYPE = os.environ.get("DHT_TYPE") or "DHT22"
     MQTT_BROKER = os.environ.get("MQTT_BROKER") or "localhost"
     MQTT_PORT = os.environ.get("MQTT_PORT") or 1883
     MQTT_TOPIC = os.environ.get("MQTT_TOPIC") or "/devices/rpi-casa"
@@ -16,17 +17,24 @@ class Config:
     MQTT_PASSWORD = os.environ.get("MQTT_PASSWORD")
     LOGGING_LEVEL = logging.INFO
 
+
 class DevelopmentConfig(Config):
     """Development configuration."""
+
     LOGGING_LEVEL = logging.DEBUG
+
 
 class ProductionConfig(Config):
     """Production configuration."""
+
     pass
+
 
 class DockerConfig(Config):
     """Docker configuration."""
+
     pass
+
 
 config = {
     "development": DevelopmentConfig,
