@@ -2,21 +2,20 @@ FROM python:3.12-slim-bookworm
 
 WORKDIR /rpi-dht
 
-COPY requirements.txt .
+COPY pyproject.toml uv.lock ./
 
 RUN apt-get update -y && \
 	apt-get upgrade -y && \
-	apt-get install gcc libc6-dev libgpiod2 -y && \
-	pip install --no-cache-dir -U pip && \
-	pip install --no-cache-dir -r requirements.txt
-
-RUN	apt autoremove -y && \
-	apt remove --purge -y gcc libc6-dev python3-rpi.gpio
+	apt-get install -y gcc libc6-dev libgpiod2 && \
+	python -m pip install --no-cache-dir -U pip uv && \
+	uv sync && \
+	apt-get remove --purge -y gcc libc6-dev && \
+	apt-get autoremove -y && \
+	rm -rf /var/lib/apt/lists/*
 
 COPY main.py config.py .
-
-RUN chmod +rx main.py config.py
 COPY utils utils
 
-# Using `python -u` to disable output buffering, ensuring real-time logs for the application.
-ENTRYPOINT [ "python", "-u", "main.py" ]
+RUN chmod +rx main.py config.py
+
+ENTRYPOINT [ "uv", "run", "python", "-u", "main.py" ]

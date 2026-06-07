@@ -47,3 +47,29 @@ This project implements a simple temperature and humidity sensor using a Raspber
     ```bash
     docker compose up -p rpi-dht-mqtt --build -d
     ```
+
+The Docker images now install dependencies from `pyproject.toml` and `uv.lock` and run the app through `uv`.
+
+## uv project
+
+This repository now uses `uv` for dependency management via `pyproject.toml` and `uv.lock`.
+
+- Install dependencies locally:
+    ```bash
+    uv sync
+    ```
+- Run the application locally:
+    ```bash
+    uv run python main.py
+    ```
+- Add a dependency:
+    ```bash
+    uv add <package>
+    uv sync
+    ```
+- Update the lock file after editing `pyproject.toml`:
+    ```bash
+    uv lock
+    ```
+
+This project now uses `pyproject.toml` and `uv.lock` as the canonical dependency manifest.

@@ -1,27 +1,18 @@
-FROM python:3.7-alpine
+FROM python:3.12-alpine
 
 ENV ENVIRONMENT docker
 
 WORKDIR /rpi-dht
 
-COPY requirements.txt .
+COPY pyproject.toml uv.lock ./
 
-RUN pip install -U pip
-RUN apk update && apk upgrade
-RUN apk add --no-cache gcc libc-dev libgpiod
-RUN pip install --no-cache-dir RPi.GPIO
-RUN pip install --no-cache-dir adafruit-blinka
-RUN pip install --no-cache-dir adafruit-circuitpython-dht
-RUN pip install --no-cache-dir -r requirements.txt
-
-RUN apk del --no-network --purge gcc libc-dev
+RUN python -m pip install --no-cache-dir -U pip uv && \
+	apk update && apk upgrade && \
+	apk add --no-cache gcc libc-dev libgpiod && \
+	uv sync && \
+	apk del --no-network --purge gcc libc-dev && \
+	rm -rf /var/cache/apk/*
 
 COPY main.py config.py utils.py .
-# RUN chmod +x /rpi-dht/*.py
 
-# Hack
-# RUN wget https://github.com/adafruit/Adafruit_Blinka/raw/main/src/adafruit_blinka/microcontroller/bcm283x/pulseio/libgpiod_pulsein64
-# RUN cp libgpiod_pulsein64 /usr/local/lib/python3.10/site-packages/adafruit_blinka/microcontroller/bcm283x/pulseio/libgpiod_pulsein64
-# RUN chmod u=rwx,g=rwx,o=rwx /usr/local/lib/python3.10/site-packages/adafruit_blinka/microcontroller/bcm283x/pulseio/libgpiod_pulsein64
-
-ENTRYPOINT [ "python", "-u", "./main.py" ]
+ENTRYPOINT [ "uv", "run", "python", "-u", "./main.py" ]
