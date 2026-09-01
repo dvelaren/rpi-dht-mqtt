@@ -1,36 +1,54 @@
-import os
+"""Application configuration.
+
+Environment variables are the single source of truth. pydantic-settings
+validates and type-casts them once at import time, so the rest of the
+codebase can trust `settings.read_time` is already an `int`, `settings.
+dht_pin` is a valid GPIO number, etc., instead of re-parsing strings
+everywhere.
+"""
+
+from __future__ import annotations
+
 import logging
-from dotenv import load_dotenv
+from enum import StrEnum
 
-load_dotenv()
+from pydantic import Field
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
-class Config:
-    READ_TIME = os.environ.get("READ_TIME") or 5
-    DHT_PIN = os.environ.get("DHT_PIN") or 17
-    DHT_TYPE = os.environ.get("DHT_TYPE") or "DHT11"
-    MQTT_BROKER = os.environ.get("MQTT_BROKER") or "localhost"
-    MQTT_PORT = os.environ.get("MQTT_PORT") or 1883
-    MQTT_TOPIC = os.environ.get("MQTT_TOPIC") or "/devices/rpi-casa"
-    MQTT_CLIENT_ID = os.environ.get("MQTT_CLIENT_ID") or "rpi-dvelas25"
-    MQTT_USERNAME = os.environ.get("MQTT_USERNAME")
-    MQTT_PASSWORD = os.environ.get("MQTT_PASSWORD")
-    LOGGING_LEVEL = logging.INFO
 
-class DevelopmentConfig(Config):
-    """Development configuration."""
-    LOGGING_LEVEL = logging.DEBUG
+class Environment(StrEnum):
+    DEVELOPMENT = "development"
+    PRODUCTION = "production"
+    DOCKER = "docker"
 
-class ProductionConfig(Config):
-    """Production configuration."""
-    pass
 
-class DockerConfig(Config):
-    """Docker configuration."""
-    pass
+class DHTType(StrEnum):
+    DHT11 = "DHT11"
+    DHT22 = "DHT22"
 
-config = {
-    "development": DevelopmentConfig,
-    "production": ProductionConfig,
-    "docker": DockerConfig,
-    "default": DevelopmentConfig,
-}
+
+class Settings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
+
+    environment: Environment = Environment.DEVELOPMENT
+    read_time: int = Field(default=5, ge=1, description="Seconds between sensor reads")
+    dht_pin: int = Field(default=17, ge=0, le=27, description="BCM GPIO pin number")
+    dht_type: DHTType = DHTType.DHT22
+
+    mqtt_broker: str = "localhost"
+    mqtt_port: int = Field(default=1883, ge=1, le=65535)
+    mqtt_topic: str = "/devices/rpi-casa"
+    mqtt_client_id: str = "rpi-dvelas25"
+    mqtt_username: str | None = None
+    mqtt_password: str | None = None
+
+    @property
+    def logging_level(self) -> int:
+        return logging.DEBUG if self.environment == Environment.DEVELOPMENT else logging.INFO
+
+
+settings = Settings()
