@@ -5,8 +5,6 @@ services:
       dockerfile: Dockerfile
     privileged: true
     container_name: rpi_dht_sensor
-    labels:
-      - "com.centurylinklabs.watchtower.enable=false"
     environment:
       - READ_TIME=${READ_TIME:-5}
       - DHT_PIN=${DHT_PIN:-17}

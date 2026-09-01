@@ -25,19 +25,26 @@ COPY utils utils
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen --no-dev
 
-# --- runtime: slim image, no compilers, non-root user ---
+# --- runtime: slim image, no compilers ---
 FROM python:3.12-slim-bookworm AS runtime
 
 RUN apt-get update -y && \
     apt-get install --no-install-recommends -y libgpiod2 && \
-    rm -rf /var/lib/apt/lists/* && \
-    groupadd --system app && useradd --system --gid app --home /rpi-dht app
+    rm -rf /var/lib/apt/lists/*
 
 WORKDIR /rpi-dht
 
-COPY --from=builder --chown=app:app /rpi-dht /rpi-dht
+COPY --from=builder /rpi-dht /rpi-dht
 
-USER app
+# Runs as root, intentionally: `lgpio` creates a notification FIFO
+# (.lgd-nfy0) in the working directory at import time, and needs direct
+# access to /dev/gpiochip*. Both break under a non-root user in ways that
+# don't resolve just by chown'ing files (see the "xCreatePipe" / "No such
+# file or directory" crash if you try switching this to USER app). Since
+# the compose file already runs this container with `privileged: true`
+# for GPIO access, a non-root user here isn't buying real isolation
+# anyway — so root keeps the one thing that actually needs unrestricted
+# hardware access working.
 ENV PATH="/rpi-dht/.venv/bin:$PATH"
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \

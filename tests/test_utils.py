@@ -3,6 +3,8 @@ from __future__ import annotations
 from unittest.mock import MagicMock, patch
 
 from paho.mqtt.enums import MQTTErrorCode
+from paho.mqtt.packettypes import PacketTypes
+from paho.mqtt.reasoncodes import ReasonCode
 
 from utils.utils import connect_mqtt, on_disconnect, publish
 
@@ -45,7 +47,23 @@ def test_on_disconnect_accepts_v2_callback_signature() -> None:
     2.x calls on_disconnect with 5 positional args, not 3."""
     client = MagicMock()
     client.reconnect.return_value = None
+    unexpected = ReasonCode(PacketTypes.DISCONNECT, "Unspecified error")
     on_disconnect(
-        client, None, disconnect_flags=MagicMock(), reason_code=MagicMock(), properties=None
+        client, None, disconnect_flags=MagicMock(), reason_code=unexpected, properties=None
     )
     client.reconnect.assert_called_once()
+
+
+def test_on_disconnect_skips_reconnect_on_clean_shutdown(caplog) -> None:
+    """Regression test: reason code 0 ("Normal disconnection") is what we
+    get back from our own client.disconnect() call during graceful
+    shutdown. Reconnecting at that point just opens a connection that's
+    immediately abandoned when the process exits."""
+    client = MagicMock()
+    clean = ReasonCode(PacketTypes.DISCONNECT, "Normal disconnection")
+    with caplog.at_level("INFO"):
+        on_disconnect(
+            client, None, disconnect_flags=MagicMock(), reason_code=clean, properties=None
+        )
+    client.reconnect.assert_not_called()
+    assert "not attempting to reconnect" in caplog.text

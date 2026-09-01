@@ -68,6 +68,17 @@ def on_disconnect(
     # reason_code, properties). The old 3-arg signature (client, userdata, rc)
     # raised TypeError as soon as a disconnect actually happened.
     logger.info("Disconnected with reason code: %s", reason_code)
+
+    # Reason code 0 ("Normal disconnection") is what we get back from our
+    # own call to client.disconnect() during a graceful shutdown — not a
+    # dropped connection. Reconnecting in that case just opens a new
+    # connection that immediately gets abandoned when the process exits.
+    # Only unexpected disconnects (dropped network, broker restart, etc.)
+    # should trigger the retry loop.
+    if reason_code == 0:
+        logger.info("Clean disconnect, not attempting to reconnect.")
+        return
+
     reconnect_count, reconnect_delay = 0, FIRST_RECONNECT_DELAY
     while reconnect_count < MAX_RECONNECT_COUNT:
         logger.info("Reconnecting in %d seconds...", reconnect_delay)
