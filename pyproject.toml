@@ -1,0 +1,70 @@
+[project]
+name = "rpi-dht-mqtt"
+version = "0.2.0"
+description = "Raspberry Pi DHT temperature and humidity sensor publisher using MQTT"
+readme = "README.md"
+requires-python = ">=3.12"
+license = { text = "MIT" }
+dependencies = [
+    "adafruit-blinka==8.58.1",
+    "adafruit-circuitpython-busdevice==5.2.12",
+    "adafruit-circuitpython-connectionmanager==3.1.4",
+    "adafruit-circuitpython-dht==4.0.8",
+    "adafruit-circuitpython-requests==4.1.12",
+    "adafruit-circuitpython-typing==1.12.1",
+    "adafruit-platformdetect==3.79.0",
+    "adafruit-pureio==1.1.11",
+    "binho-host-adapter==0.1.6",
+    "lgpio==0.2.2.0",
+    "paho-mqtt==2.1.0",
+    "pydantic-settings==2.7.1",
+    "pyftdi==0.56.0",
+    "pyserial==3.5",
+    "python-dotenv==1.1.0",
+    "pyusb==1.3.1",
+    "rpi-lgpio==0.6",
+    "sysv-ipc==1.1.0",
+    "typing-extensions==4.14.0",
+]
+
+[dependency-groups]
+dev = [
+    "mypy==1.14.1",
+    "pytest==8.3.4",
+    "pytest-cov==6.0.0",
+    "ruff==0.9.4",
+]
+
+[tool.uv]
+# This is a deployable script app (main.py at repo root), not an installable
+# library — there's no src/rpi_dht_mqtt/ package for a build backend to find.
+# `package = false` tells uv to just manage the venv + dependencies via
+# `uv sync` / `uv run`, without trying to build/install this project itself.
+package = false
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
+
+[tool.mypy]
+python_version = "3.12"
+warn_unused_ignores = true
+warn_redundant_casts = true
+check_untyped_defs = true
+# Hardware SDKs (board, adafruit_dht, lgpio) ship no type stubs and only
+# import successfully on real Raspberry Pi hardware.
+[[tool.mypy.overrides]]
+module = ["board", "adafruit_dht", "lgpio", "adafruit_blinka.*"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+# `uv run pytest` invokes the pytest console script directly, which (unlike
+# `python -m pytest`) does not add the current directory to sys.path — so
+# without this, `from config import ...` / `from utils...` fail to import
+# during test collection.
+pythonpath = ["."]
+addopts = "-ra --cov=. --cov-report=term-missing"
+testpaths = ["tests"]

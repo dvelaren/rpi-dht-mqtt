@@ -72,8 +72,17 @@ target/
 
 # Virtual environment
 .env
+.env.example
 .venv/
 venv/
+
+# Not needed inside the image
+tests/
+.github/
+.git/
+.ruff_cache/
+.mypy_cache/
+.pytest_cache/
 
 # PyCharm
 .idea
