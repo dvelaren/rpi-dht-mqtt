@@ -1,10 +1,11 @@
 services:
-  rpi_dht_sensor:
+  rpi-dht-mqtt:
+    image: rpi-dht-mqtt:latest
     build:
       context: ./
       dockerfile: Dockerfile
     privileged: true
-    container_name: rpi_dht_sensor
+    container_name: rpi-dht-mqtt
     labels:
       - "com.centurylinklabs.watchtower.enable=false"
     environment:
