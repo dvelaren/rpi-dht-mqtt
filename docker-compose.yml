@@ -8,6 +8,7 @@ services:
     labels:
       - "com.centurylinklabs.watchtower.enable=false"
     environment:
+      - ENVIRONMENT=${ENVIRONMENT:-production}
       - READ_TIME=${READ_TIME:-5}
       - DHT_PIN=${DHT_PIN:-17}
       - DHT_TYPE=${DHT_TYPE:-DHT22}

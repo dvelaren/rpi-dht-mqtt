@@ -19,7 +19,6 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Environment(StrEnum):
     DEVELOPMENT = "development"
     PRODUCTION = "production"
-    DOCKER = "docker"
 
 
 class DHTType(StrEnum):
