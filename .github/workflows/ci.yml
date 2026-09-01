@@ -1,0 +1,52 @@
+name: CI
+
+on:
+  push:
+    branches: [main, "feature/**"]
+  pull_request:
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: "0.5.x"
+          enable-cache: true
+
+      - name: Set up Python
+        run: uv python install 3.12
+
+      - name: Install dependencies
+        # Hardware-only packages (rpi-lgpio, lgpio, etc.) don't build off a
+        # Raspberry Pi. `--no-install-project` plus the pinned dev group is
+        # enough for lint/type-check/unit tests, which stub `board` and
+        # `adafruit_dht` in tests/conftest.py instead of touching real GPIO.
+        run: uv sync --group dev --no-install-project || uv sync --group dev
+
+      - name: Ruff lint
+        run: uv run ruff check .
+
+      - name: Ruff format check
+        run: uv run ruff format --check .
+
+      - name: mypy
+        run: uv run mypy config.py utils/ tests/
+
+      - name: pytest
+        run: uv run pytest
+
+  docker-build:
+    runs-on: ubuntu-latest
+    needs: lint-and-test
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          tags: rpi-dht-mqtt:ci

@@ -3,10 +3,6 @@ services:
     build:
       context: ./
       dockerfile: Dockerfile
-    # devices:
-    #   - /dev/gpiomem
-    # - /dev/gpiochip0
-    # - /dev/gpiochip1
     privileged: true
     container_name: rpi_dht_sensor
     environment:

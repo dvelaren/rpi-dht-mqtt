@@ -1,21 +1,46 @@
-FROM python:3.12-slim-bookworm
+# syntax=docker/dockerfile:1
+
+# --- builder: resolve & install deps with uv, isolated from the runtime image ---
+FROM ghcr.io/astral-sh/uv:0.5-python3.12-bookworm-slim AS builder
 
 WORKDIR /rpi-dht
 
+# Build deps needed only to compile a couple of native extensions (e.g. lgpio).
+# Removed again after `uv sync` so they never reach the runtime image.
+RUN apt-get update -y && \
+    apt-get install --no-install-recommends -y gcc libc6-dev libgpiod2 && \
+    rm -rf /var/lib/apt/lists/*
+
+ENV UV_COMPILE_BYTECODE=1 \
+    UV_LINK_MODE=copy
+
+# Copy only the manifest/lock first so dependency install is cached
+# independently of application code changes.
 COPY pyproject.toml uv.lock ./
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen --no-dev --no-install-project
+
+COPY main.py config.py ./
+COPY utils utils
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen --no-dev
+
+# --- runtime: slim image, no compilers, non-root user ---
+FROM python:3.12-slim-bookworm AS runtime
 
 RUN apt-get update -y && \
-	apt-get upgrade -y && \
-	apt-get install -y gcc libc6-dev libgpiod2 && \
-	python -m pip install --no-cache-dir -U pip uv && \
-	uv sync && \
-	apt-get remove --purge -y gcc libc6-dev && \
-	apt-get autoremove -y && \
-	rm -rf /var/lib/apt/lists/*
+    apt-get install --no-install-recommends -y libgpiod2 && \
+    rm -rf /var/lib/apt/lists/* && \
+    groupadd --system app && useradd --system --gid app --home /rpi-dht app
 
-COPY main.py config.py .
-COPY utils utils
+WORKDIR /rpi-dht
 
-RUN chmod +rx main.py config.py
+COPY --from=builder --chown=app:app /rpi-dht /rpi-dht
 
-ENTRYPOINT [ "uv", "run", "python", "-u", "main.py" ]
+USER app
+ENV PATH="/rpi-dht/.venv/bin:$PATH"
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+    CMD python -c "import sys; sys.exit(0)"
+
+ENTRYPOINT ["python", "-u", "main.py"]
